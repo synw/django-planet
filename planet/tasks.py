@@ -14,6 +14,7 @@ try:
 except ImportError:
     from urllib.parse import urlparse
 
+import pytz
 import feedparser
 import time
 import mimetypes
@@ -22,7 +23,7 @@ from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.contrib.auth import get_user_model
-
+from django.utils import timezone
 from tagging.models import Tag
 
 from planet.models import (Blog, Generator, Feed, FeedLink, Post, PostLink,
@@ -30,6 +31,7 @@ from planet.models import (Blog, Generator, Feed, FeedLink, Post, PostLink,
 from planet.signals import feeds_updated
 from planet.signals import post_created
 
+TZ = pytz.timezone(settings.TIME_ZONE)
 
 class PostAlreadyExists(Exception):
     pass
@@ -55,7 +57,7 @@ def process_feed(feed_url, owner_id=None, create=False, category_title=None):
             tag = tag[:-1]
 
         # fix for HTML entities
-        tag = BeautifulSoup(tag).prettify(formatter="html")
+        tag = BeautifulSoup(tag, "html5lib").prettify(formatter="html")
         tag = tag.strip().lower()
         return tag
 
@@ -88,10 +90,10 @@ def process_feed(feed_url, owner_id=None, create=False, category_title=None):
 
     # retrieve and parse feed using conditional GET method
     if not create:
-        modified = datetime.timetuple(planet_feed.last_modified)
+        modified = TZ.localize(datetime.timetuple(planet_feed.last_modified))
         etag = planet_feed.etag
         # update last checked datetime
-        planet_feed.last_checked = datetime.now()
+        planet_feed.last_checked = timezone.now()
         planet_feed.save()
     else:
         modified = etag = None
@@ -120,8 +122,10 @@ def process_feed(feed_url, owner_id=None, create=False, category_title=None):
         updated_parsed = document.get("updated_parsed")
         if updated_parsed:
             last_modified = datetime.fromtimestamp(time.mktime(updated_parsed))
+            last_modified = TZ.localize(last_modified)
+            
         else:
-            last_modified = datetime.now()
+            last_modified = timezone.now()
 
         feed_links = document.feed.get("links", [])
         if not blog_url:
@@ -204,12 +208,13 @@ def process_feed(feed_url, owner_id=None, create=False, category_title=None):
                     "content", [{"value": ""}])[0]["value"]
                 comments_url = entry.get("comments")
                 date_modified = entry.get("updated_parsed") or\
-                    entry.get("published_parsed")
+                    entry.get("updated_parsed")
                 try:
                     date_modified = datetime.fromtimestamp(
                         time.mktime(date_modified))
                 except Exception:
                     date_modified = planet_feed.last_modified or datetime.now()
+                date_modified = TZ.localize(date_modified)
 
                 try:
                     if len(Post.objects.filter(url=url, guid=guid)):
@@ -335,7 +340,7 @@ def process_feed(feed_url, owner_id=None, create=False, category_title=None):
 
         if new_posts_count:
             # update last modified datetime
-            planet_feed.last_modified = datetime.now()
+            planet_feed.last_modified = timezone.now()
             planet_feed.save()
         print("{} posts were created. Done.".format(new_posts_count))
 
