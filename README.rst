@@ -26,6 +26,7 @@ Todo
 
 - Fix the tests with reversed urls
 - Improve the search (and remove the context processor)
+- Categories refactoring using mptt
 
 License
 =======

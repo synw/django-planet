@@ -26,5 +26,5 @@ class Command(BaseCommand):
 
         feed_url = args[0]
         # process feed in create-mode
-        process_feed.delay(feed_url, create=True, category_title=options['category'])
-        self.stdout.write("Feed created. Posts scheduled to be retrived soon.")
+        process_feed(feed_url, create=True, category_title=options['category'])
+        self.stdout.write("Feed created.")

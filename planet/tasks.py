@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
+from planet.settings import ASYNC_BACKEND, USER_AGENT
 
-try:
-    from celery import task
-except ImportError:
-    from planet.utils import task_faker as task
+if ASYNC_BACKEND == "celery":
+    try:
+        from celery import task
+    except ImportError:
+        from planet.utils import task_faker as task
+elif ASYNC_BACKEND == 'huey':   
+    from huey.contrib.djhuey import crontab, periodic_task
 
 from datetime import datetime
 from hashlib import md5
@@ -37,7 +41,6 @@ class PostAlreadyExists(Exception):
     pass
 
 
-@task(ignore_results=True)
 def process_feed(feed_url, owner_id=None, create=False, category_title=None):
     """
     Stores a feed, its related data, its entries and their related data.
@@ -61,13 +64,6 @@ def process_feed(feed_url, owner_id=None, create=False, category_title=None):
         tag = tag.strip().lower()
         return tag
 
-    try:
-        USER_AGENT = settings.PLANET["USER_AGENT"]
-    except (KeyError, AttributeError):
-        print(
-            """Please set PLANET = {" USER_AGENT": <string>} in your settings.py""")
-        exit(0)
-
     feed_url = str(feed_url).strip()
 
     try:
@@ -90,7 +86,7 @@ def process_feed(feed_url, owner_id=None, create=False, category_title=None):
 
     # retrieve and parse feed using conditional GET method
     if not create:
-        modified = TZ.localize(datetime.timetuple(planet_feed.last_modified))
+        modified = datetime.timetuple(planet_feed.last_modified)
         etag = planet_feed.etag
         # update last checked datetime
         planet_feed.last_checked = timezone.now()
@@ -353,22 +349,37 @@ def process_feed(feed_url, owner_id=None, create=False, category_title=None):
     return new_posts_count
 
 
-@task(ignore_results=True)
-def update_feeds():
-    """
-    Task for running on celery beat!
-
-    CELERYBEAT_SCHEDULE = {
-        'update_feeds': {
-            'task': 'planet.tasks.update_feeds',
-            'schedule': timedelta(hours=1)
-        }
-    }
-    """
-
+def _update_feeds():
     for feed_url in Feed.site_objects.all().values_list("url", flat=True):
         print("Scheduling feed URL={}...".format(feed_url))
-        process_feed.delay(feed_url, create=False)
+        process_feed(feed_url, create=False)
         print("Done!")
 
     feeds_updated.send(sender=None, instance=None)
+
+if ASYNC_BACKEND == 'celery':    
+
+    @task(ignore_results=True)
+    def update_feeds():
+        """
+        Task for running on celery beat!
+    
+        CELERYBEAT_SCHEDULE = {
+            'update_feeds': {
+                'task': 'planet.tasks.update_feeds',
+                'schedule': timedelta(hours=1)
+            }
+        }
+        """
+        return _update_feeds()
+    
+elif ASYNC_BACKEND == 'huey':    
+
+    @periodic_task(crontab(hour=1))
+    def update_feeds():
+        """
+        Task for running on Huey
+        """
+        return _update_feeds()
+
+
