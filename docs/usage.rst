@@ -23,7 +23,6 @@ Modifiy your projects ``settings.py`` file following the next steps:
     # 3rd-party required apps:
     'pagination',
     'tagging',
-    'pinax_theme_bootstrap',
     # and finally:
     'planet',
   )
