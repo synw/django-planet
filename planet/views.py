@@ -12,6 +12,7 @@ from django.http import Http404
 
 from planet.models import Blog, Feed, Author, Post
 from planet.forms import SearchForm
+from planet.settings import BASE_TEMPLATE
 
 from tagging.models import Tag, TaggedItem
 
@@ -19,7 +20,7 @@ from tagging.models import Tag, TaggedItem
 def index(request):
     posts = Post.site_objects.all().order_by("-date_modified")
 
-    return render_to_response("planet/posts/list.html", {"posts": posts},
+    return render_to_response("planet/posts/list.html", {"posts": posts, "base_template":BASE_TEMPLATE},
         context_instance=RequestContext(request))
 
 
@@ -27,7 +28,7 @@ def blogs_list(request):
     blogs_list = Blog.site_objects.all()
 
     return render_to_response("planet/blogs/list.html",
-        {"blogs_list": blogs_list}, context_instance=RequestContext(request))
+        {"blogs_list": blogs_list, "base_template":BASE_TEMPLATE}, context_instance=RequestContext(request))
 
 
 def blog_detail(request, blog_id, slug=None):
@@ -39,7 +40,7 @@ def blog_detail(request, blog_id, slug=None):
     posts = Post.site_objects.filter(feed__blog=blog).order_by("-date_modified")
 
     return render_to_response("planet/blogs/detail.html",
-                              {"blog": blog, "posts": posts},
+                              {"blog": blog, "posts": posts, "base_template":BASE_TEMPLATE},
         context_instance=RequestContext(request))
 
 
@@ -47,7 +48,7 @@ def feeds_list(request):
     feeds_list = Feed.site_objects.all()
 
     return render_to_response("planet/feeds/list.html",
-        {"feeds_list": feeds_list}, context_instance=RequestContext(request))
+        {"feeds_list": feeds_list, "base_template":BASE_TEMPLATE}, context_instance=RequestContext(request))
 
 
 def feed_detail(request, feed_id, tag=None, slug=None):
@@ -65,7 +66,7 @@ def feed_detail(request, feed_id, tag=None, slug=None):
         posts = Post.site_objects.filter(feed=feed).order_by("-date_modified")
 
     return render_to_response("planet/feeds/detail.html",
-        {"feed": feed, "posts": posts, "tag": tag},
+        {"feed": feed, "posts": posts, "tag": tag, "base_template":BASE_TEMPLATE},
         context_instance=RequestContext(request))
 
 
@@ -73,7 +74,7 @@ def authors_list(request):
     authors = Author.site_objects.all()
 
     return render_to_response("planet/authors/list.html",
-        {"authors_list": authors},
+        {"authors_list": authors, "base_template":BASE_TEMPLATE},
         context_instance=RequestContext(request))
 
 
@@ -93,7 +94,7 @@ def author_detail(request, author_id, tag=None, slug=None):
             authors=author).order_by("-date_modified")
 
     return render_to_response("planet/authors/detail.html",
-        {"author": author, "posts": posts, "tag": tag},
+        {"author": author, "posts": posts, "tag": tag, "base_template":BASE_TEMPLATE},
         context_instance=RequestContext(request))
 
 
@@ -101,7 +102,7 @@ def posts_list(request):
     posts = Post.site_objects.all().select_related("feed", "feed__blog")\
         .prefetch_related("authors").order_by("-date_modified")
 
-    return render_to_response("planet/posts/list.html", {"posts": posts},
+    return render_to_response("planet/posts/list.html", {"posts": posts, "base_template":BASE_TEMPLATE},
         context_instance=RequestContext(request))
 
 
@@ -114,7 +115,7 @@ def post_detail(request, post_id, slug=None):
     if not slug:
         return redirect(post, permanent=True)
 
-    return render_to_response("planet/posts/detail.html", {"post": post},
+    return render_to_response("planet/posts/detail.html", {"post": post, "base_template":BASE_TEMPLATE},
         context_instance=RequestContext(request))
 
 
@@ -125,7 +126,7 @@ def tag_detail(request, tag):
         Post.site_objects, tag).order_by("-date_modified")
 
     return render_to_response("planet/tags/detail.html", {"posts": posts,
-        "tag": tag}, context_instance=RequestContext(request))
+        "tag": tag, "base_template":BASE_TEMPLATE}, context_instance=RequestContext(request))
 
 
 def tag_authors_list(request, tag):
@@ -139,7 +140,7 @@ def tag_authors_list(request, tag):
             authors.add(author)
 
     return render_to_response("planet/authors/list_for_tag.html",
-        {"authors": list(authors), "tag": tag},
+        {"authors": list(authors), "tag": tag, "base_template":BASE_TEMPLATE},
         context_instance=RequestContext(request))
 
 
@@ -152,7 +153,7 @@ def tag_feeds_list(request, tag):
     feeds_list = Feed.site_objects.filter(post__in=post_ids).distinct()
 
     return render_to_response("planet/feeds/list_for_tag.html",
-        {"feeds_list": feeds_list, "tag": tag},
+        {"feeds_list": feeds_list, "tag": tag, "base_template":BASE_TEMPLATE},
         context_instance=RequestContext(request))
 
 
@@ -168,14 +169,14 @@ def foaf(request):
     # TODO: use http://code.google.com/p/django-foaf/ instead of this
     feeds = Feed.site_objects.all().select_related("blog")
 
-    return render_to_response("planet/microformats/foaf.xml", {"feeds": feeds},
+    return render_to_response("planet/microformats/foaf.xml", {"feeds": feeds, "base_template":BASE_TEMPLATE},
         context_instance=RequestContext(request), content_type="text/xml")
 
 
 def opml(request):
     feeds = Feed.site_objects.all().select_related("blog")
 
-    return render_to_response("planet/microformats/opml.xml", {"feeds": feeds},
+    return render_to_response("planet/microformats/opml.xml", {"feeds": feeds, "base_template":BASE_TEMPLATE},
         context_instance=RequestContext(request), content_type="text/xml")
 
 
@@ -193,7 +194,7 @@ def search(request):
                     ).distinct().order_by("-date_modified")
 
                 return render_to_response("planet/posts/list.html",
-                    {"posts": posts}, context_instance=RequestContext(request))
+                    {"posts": posts, "base_template":BASE_TEMPLATE}, context_instance=RequestContext(request))
 
             elif search_form.cleaned_data["w"] == "tags":
                 params_dict = {"name__icontains": query}
@@ -212,7 +213,7 @@ def search(request):
                     ).order_by("title")
 
                 return render_to_response("planet/blogs/list.html",
-                    {"blogs_list": blogs_list},
+                    {"blogs_list": blogs_list, "base_template":BASE_TEMPLATE},
                     context_instance=RequestContext(request))
 
             elif search_form.cleaned_data["w"] == "feeds":
@@ -222,7 +223,7 @@ def search(request):
                     ).order_by("title")
 
                 return render_to_response("planet/feeds/list.html",
-                    {"feeds_list": feeds_list},
+                    {"feeds_list": feeds_list, "base_template":BASE_TEMPLATE},
                     context_instance=RequestContext(request))
 
             elif search_form.cleaned_data["w"] == "authors":
@@ -232,7 +233,7 @@ def search(request):
                     ).order_by("name")
 
                 return render_to_response("planet/authors/list.html",
-                    {"authors_list": authors_list},
+                    {"authors_list": authors_list, "base_template":BASE_TEMPLATE},
                     context_instance=RequestContext(request))
 
             else:

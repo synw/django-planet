@@ -1,4 +1,4 @@
-{% extends 'site_base.html' %}
+{% extends base_template %}
 {% load i18n tagging_tags planet_tags %}
 
 {% block head_title_base %}{% block head_title %}{% endblock %}{% endblock %}
@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block search %}
-    <form name="search_form" id="search_form" action="{% url planet_search %}" method="GET">
+    <form name="search_form" id="search_form" action="" method="GET">{% csrf_token %}
         <label>{% trans 'Search in' %}</label>
         {{ search_form }}
         <button name="search" value="go">{% trans 'ok' %}</button>
@@ -19,9 +19,17 @@
 {% endblock %}
 
 {% block right_column %}
-    {% include 'planet/feeds/blocks/syndication_block.html' %}
+    {# include 'planet/feeds/blocks/syndication_block.html' #}
     {% tag_cloud_for_model planet.Post as tags_cloud with steps=7 min_count=5 distribution=log %}
     {% include 'planet/tags/blocks/cloud.html' %}
+    {% get_categories as categories %}
+    {% if categories %}
+    	<ul class="list-group">
+	    {% for category in categories %}
+	    	<li class="list-group-item">{{ category.title }}</li>
+	    {% endfor %}
+	    </ul>
+    {% endif %}
 {% endblock %}
 
 {% block footer %}
