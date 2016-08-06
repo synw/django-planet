@@ -47,7 +47,7 @@ def _get_user_model():
         return "auth.User"
 
 
-@python_2_unicode_compatible
+
 class Blog(models.Model):
     """
     A model to store primary info about a blog or website that which feed or
@@ -67,7 +67,7 @@ class Blog(models.Model):
         verbose_name_plural = _("Blogs")
         ordering = ('title', 'url',)
 
-    def __str__(self):
+    def __unicode__(self):
         return '{} ({})'.format(self.title, self.url)
 
     @models.permalink
@@ -78,7 +78,7 @@ class Blog(models.Model):
         return slugify(self.title) or "no-title"
 
 
-@python_2_unicode_compatible
+
 class Generator(models.Model):
     """
     The software or website that has built a feed
@@ -96,11 +96,11 @@ class Generator(models.Model):
         ordering = ('name', 'version',)
         unique_together = (("name", "link", "version"), )
 
-    def __str__(self):
+    def __unicode__(self):
         return '{} {} ({})'.format(self.name, self.version or "", self.link or "--")
 
 
-@python_2_unicode_compatible
+
 class Category(models.Model):
     """
     Define Categories for Feeds. In this way a site can manage many
@@ -114,11 +114,11 @@ class Category(models.Model):
         verbose_name_plural = _("Feed Categories")
         ordering = ('title', 'date_created')
 
-    def __str__(self):
+    def __unicode__(self):
         return "{}".format(self.title)
 
 
-@python_2_unicode_compatible
+
 class Feed(models.Model):
     """
     A model to store detailed info about a parsed Atom or RSS feed
@@ -192,15 +192,15 @@ class Feed(models.Model):
 
             self.site = Site.objects.get(pk=settings.SITE_ID)
 
-            self.title = document.feed.get("title", "--")
-            self.subtitle = document.feed.get("subtitle")
-            blog_url = document.feed.get("link")
-            self.rights = document.feed.get("rights") or document.feed.get("license")
-            self.info = document.feed.get("info")
-            self.guid = document.feed.get("id")
+            self.title = document.feed.get("title", "--").encode('utf-8')
+            self.subtitle = document.feed.get("subtitle").encode('utf-8')
+            blog_url = document.feed.get("link").encode('utf-8')
+            self.rights = document.feed.get("rights").encode('utf-8') or document.feed.get("license").encode('utf-8')
+            self.info = document.feed.get("info").encode('utf-8')
+            self.guid = document.feed.get("id").encode('utf-8')
             self.image_url = document.feed.get("image", {}).get("href")
-            self.icon_url = document.feed.get("icon")
-            self.language = document.feed.get("language")
+            self.icon_url = document.feed.get("icon").encode('utf-8')
+            self.language = document.feed.get("language").encode('utf-8')
             self.etag = document.get("etag", '')
 
             self.last_modified = document.get("updated_parsed", datetime.now())
@@ -222,7 +222,7 @@ class Feed(models.Model):
 
         super(Feed, self).save(*args, **kwargs)
 
-    def __str__(self):
+    def __unicode__(self):
         return '{} ({})'.format(self.title, self.url)
 
     @models.permalink
@@ -233,7 +233,7 @@ class Feed(models.Model):
         return slugify(self.title) or "no-title"
 
 
-@python_2_unicode_compatible
+
 class PostAuthorData(models.Model):
     """
     This is the intermediate model that holds the information of the post authors
@@ -250,13 +250,13 @@ class PostAuthorData(models.Model):
         verbose_name_plural = _("Post Author Data")
         ordering = ("author", "post", "is_contributor")
 
-    def __str__(self):
+    def __unicode__(self):
         author_type = self.is_contributor and "Contributor" or "Author"
         return '{} ({} - {})'.format(
             self.author.name, author_type, self.post.title)
 
 
-@python_2_unicode_compatible
+
 class Post(models.Model):
     """
     A feed contains a collection of posts. This model stores them.
@@ -282,7 +282,7 @@ class Post(models.Model):
         ordering = ('-date_created', '-date_modified')
         unique_together = (('feed', 'guid'),)
 
-    def __str__(self):
+    def __unicode__(self):
         return "{} [{}]".format(self.title, self.feed.title)
 
     @models.permalink
@@ -301,7 +301,7 @@ def delete_asociated_tags(sender, **kwargs):
 pre_delete.connect(delete_asociated_tags, sender=Post)
 
 
-@python_2_unicode_compatible
+
 class Author(models.Model):
     """
     An author is everyone who wrote or has contributed to write a post.
@@ -319,7 +319,7 @@ class Author(models.Model):
         verbose_name_plural = _("Authors")
         ordering = ('name', 'email')
 
-    def __str__(self):
+    def __unicode__(self):
         return "{} ({})".format(self.name, self.email)
 
     @models.permalink
@@ -330,7 +330,7 @@ class Author(models.Model):
         return slugify(self.name) or "no-title"
 
 
-@python_2_unicode_compatible
+
 class FeedLink(models.Model):
     """
     Stores data contained in feedparser's feed.links for a given feed
@@ -349,7 +349,7 @@ class FeedLink(models.Model):
         ordering = ("feed", "rel", "mime_type")
         #unique_together = (("feed", "rel", "mime_type", "link"), )
 
-    def __str__(self):
+    def __unicode__(self):
         return "{} {} ({})".format(self.feed.title, self.rel, self.mime_type)
 
 
@@ -372,11 +372,11 @@ class PostLink(models.Model):
         ordering = ("post", "title", "rel")
         #unique_together = (("post", "rel", "mime_type", "title"), )
 
-    def __str__(self):
+    def __unicode__(self):
         return "{} {} ({})".format(self.title, self.rel, self.post)
 
 
-@python_2_unicode_compatible
+
 class Enclosure(models.Model):
     """
     Stores data contained in feedparser's feed.entries[i].enclosures for a given feed
@@ -395,6 +395,6 @@ class Enclosure(models.Model):
         ordering = ("post", "mime_type", "link")
         #unique_together = (("post", "link", "mime_type"), )
 
-    def __str__(self):
+    def __unicode__(self):
         return "{} [{}] ({})".format(self.link, self.mime_type, self.post)
 
