@@ -28,8 +28,8 @@ from tagging.models import Tag
 
 from planet.models import (Blog, Generator, Feed, FeedLink, Post, PostLink,
                            Author, PostAuthorData, Enclosure, Category)
-from planet.signals import feeds_updated
-from planet.signals import post_created
+from planet.signals import feeds_updated, post_created
+from planet.settings import MAX_POSTS
 
 TZ = pytz.timezone(settings.TIME_ZONE)
 
@@ -192,12 +192,18 @@ def process_feed(feed_url, owner_id=None, create=False, category_title=None):
         print("Entries total count: {}".format(total_results))
         stop_retrieving = False
         while (total_results > len(entries)) and not stop_retrieving:
-
+            
             # retrieve and store feed posts
             entries.extend(document.entries)
             print("Processing {} entries".format(len(document.entries)))
 
             for entry in document.entries:
+                # limit the number of retrieved posts
+                if new_posts_count >= MAX_POSTS:
+                    stop_retrieving = True
+                    print('! Max number of posts reached: '+str(MAX_POSTS))
+                    break
+                # process
                 title = entry.get("title", "")
                 url = entry.get("link")
                 try:
@@ -328,7 +334,7 @@ def process_feed(feed_url, owner_id=None, create=False, category_title=None):
                             pad.save()
 
                     # We send a post_created signal
-                    print('post_created.send(sender=post)', post)
+                    print(str(new_posts_count)+". Post created: "+post.title)
                     post_created.send(sender=post, instance=post)
 
             if not stop_retrieving:

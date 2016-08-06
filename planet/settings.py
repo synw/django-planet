@@ -17,3 +17,4 @@ PLANET_CONFIG = {
 
 PLANET_CONFIG.update(PROJECT_PLANET)
 USER_AGENT = getattr(settings, 'PLANET_USER_AGENT', "My Planet/1.0")
+MAX_POSTS = getattr(settings, 'PLANET_MAX_POSTS', 30)
