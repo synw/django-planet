@@ -33,6 +33,8 @@ urlpatterns = patterns('planet.views',
     url(r'^feeds/(?P<feed_id>\d+)/(?P<slug>[a-zA-Z0-9_\-]+)/$', "feed_detail", name="planet_feed_detail"),
     url(r'^feeds/(?P<feed_id>\d+)/$', "feed_detail"),
     url(r'^feeds/$', "feeds_list", name="planet_feed_list"),
+    
+    url(r'^category/(?P<category_id>[0-9]+)/$', "posts_for_category", name="planet_posts_for_category"),
 
     url(r'^authors/(?P<author_id>\d+)/(?P<slug>[a-zA-Z0-9_\-]+)/tags/(?P<tag>.*)/$', "author_detail", name="planet_by_tag_author_detail"),
     url(r'^authors/(?P<author_id>\d+)/(?P<slug>[a-zA-Z0-9_\-]+)/$', "author_detail", name="planet_author_detail"),

@@ -16,6 +16,7 @@ class BlogViewsTest(TestCase):
         self.site = Site.objects.get_current()
         self.blog = BlogFactory.create(title="Blog-1")
         self.feed = FeedFactory.create(title="Feed-1", site=self.site, blog=self.blog)
+        print "F "+str(self.feed.id)+' / '+str(self.blog.id)
 
     def test_list(self):
         response = self.client.get("/blogs/")

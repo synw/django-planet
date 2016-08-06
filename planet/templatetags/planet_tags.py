@@ -13,7 +13,7 @@ from django.utils.safestring import mark_safe
 from django.utils.text import smart_split
 from django.utils.translation import ugettext as _
 
-from planet.models import Author, Feed, Blog, Post
+from planet.models import Author, Feed, Blog, Post, Category
 from planet.settings import PLANET_CONFIG
 
 from tagging.models import Tag, TaggedItem
@@ -270,3 +270,10 @@ def latest_posts(count=10):
     A way to get latest posts from inside a template
     """
     return Post.objects.all()[:count]
+
+@register.simple_tag
+def get_categories():
+    """
+    Get the categories
+    """
+    return Category.objects.all()

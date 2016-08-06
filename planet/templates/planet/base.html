@@ -20,15 +20,32 @@
 
 {% block right_column %}
     {# include 'planet/feeds/blocks/syndication_block.html' #}
-    {% tag_cloud_for_model planet.Post as tags_cloud with steps=7 min_count=5 distribution=log %}
+    {% if tags_cloud %}
+    	<h4>{% trans "Tags" %}</h4>
+    	{% tag_cloud_for_model planet.Post as tags_cloud with steps=7 min_count=5 distribution=log %}
+    {% endif %}
     {% include 'planet/tags/blocks/cloud.html' %}
     {% get_categories as categories %}
     {% if categories %}
-    	<ul class="list-group">
-	    {% for category in categories %}
-	    	<li class="list-group-item">{{ category.title }}</li>
-	    {% endfor %}
-	    </ul>
+    	<style>
+	    	#planet_categories li.active {
+	    		background-color:lightgrey !important;
+	    		color:black;
+	    		font-weight:bold;
+	    	}
+	    </style>
+	    <div id="planet_categories" class="panel panel-primary" style="margin-top:1.5em">
+	        <div class="panel-heading">
+	            <h4 class="panel-title">{% trans "Categories" %}</h4>
+	        </div>
+	    	<ul class="list-group">
+		    {% for acategory in categories %}
+		    	<li class="list-group-item{% if category == acategory %} active{% endif %}">
+		    		<a href="{% url 'planet_posts_for_category' acategory.id %}">{{ acategory.title }}</a>
+		    	</li>
+		    {% endfor %}
+		    </ul>
+	    </div>
     {% endif %}
 {% endblock %}
 

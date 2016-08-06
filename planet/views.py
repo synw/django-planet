@@ -10,7 +10,7 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView, DeleteView
 from django.http import Http404
 
-from planet.models import Blog, Feed, Author, Post
+from planet.models import Blog, Feed, Author, Post, Category, Post
 from planet.forms import SearchForm
 from planet.settings import BASE_TEMPLATE
 
@@ -23,6 +23,13 @@ def index(request):
     return render_to_response("planet/posts/list.html", {"posts": posts, "base_template":BASE_TEMPLATE},
         context_instance=RequestContext(request))
 
+def posts_for_category(request, category_id):
+    category = get_object_or_404(Category, pk=category_id)
+    feeds = Feed.objects.filter(category=category)
+    posts = Post.site_objects.filter(feed__in=feeds).order_by("-date_modified")
+
+    return render_to_response("planet/posts/list.html", {"posts": posts, "category":category, "base_template":BASE_TEMPLATE},
+        context_instance=RequestContext(request))
 
 def blogs_list(request):
     blogs_list = Blog.site_objects.all()
