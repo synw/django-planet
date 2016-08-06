@@ -12,7 +12,6 @@
 
 # python 3.x compatibility helpers
 from __future__ import unicode_literals
-from django.utils.encoding import python_2_unicode_compatible
 
 import feedparser
 from datetime import datetime
@@ -24,6 +23,7 @@ from django.contrib.sites.models import Site
 from django.conf import settings
 from django.db.models.signals import pre_delete
 from django.template.defaultfilters import slugify
+from planet.settings import USER_AGENT
 
 # Patch for handle new and old version of django-tagging
 try:
@@ -180,12 +180,6 @@ class Feed(models.Model):
     def save(self, *args, **kwargs):
         if not self.blog:
             self.modified = self.etag = None
-
-            try:
-                USER_AGENT = settings.PLANET["USER_AGENT"]
-            except (KeyError, AttributeError):
-                print("""Please set the PLANET = {"USER_AGENT": <string>} in your settings.py""")
-                exit(0)
 
             document = feedparser.parse(self.url, agent=USER_AGENT,
                                         modified=self.modified, etag=self.etag)
