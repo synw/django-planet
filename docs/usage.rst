@@ -1,178 +1,93 @@
 Usage
 =====
 
-Changing your settings.py
--------------------------
+.. toctree::
+  :maxdepth: 1
+  :hidden:
 
-Modifiy your projects ``settings.py`` file following the next steps:
+  install
 
-1. Check your ``INSTALLED_APPS``:
+  screenshots
+  demo
+  
+  contributing
 
-.. code-block:: python
+Management commands
+-------------------
 
-  INSTALLED_APPS = (
-    # django required contrib apps
-    'django.contrib.sites',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.sitemaps',
-    # 3rd-party required apps:
-    'pagination',
-    'tagging',
-    # and finally:
-    'planet',
-  )
-
-2. Configure your database. Here is an example using mysql:
+Add some feeds:
 
 .. code-block:: python
 
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': 'planet',                      # Or path to database file if using sqlite3.
-            'USER': '<myuser>',                      # Not used with sqlite3.
-            'PASSWORD': '<mypass>',                  # Not used with sqlite3.
-            'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-            'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-        }
-    }
-
-3. Choose a site id:
+    python manage.py planet_add_feed https://www.djangoproject.com/rss/weblog/
+    python manage.py planet_add_feed https://djangopackages.org/feeds/packages/latest/rss/
+    
+Update a feed:
 
 .. code-block:: python
 
-  SITE_ID = 1
-
-4. Include the following context processors:
-
-.. code-block:: python
-
-    TEMPLATE_CONTEXT_PROCESSORS = (
-        'django.contrib.auth.context_processors.auth',
-        'django.core.context_processors.debug',
-        'django.core.context_processors.i18n',
-        'django.core.context_processors.media',
-        'django.core.context_processors.static',
-        'django.core.context_processors.tz',
-        'django.core.context_processors.request',
-        'django.contrib.messages.context_processors.messages',
-        'planet.context_processors.context',
-    )
-
-Please do not forget ``planet.context_processors.context``!
-
-5. Check your middlewares to include:
+	python manage.py planet_update_feed https://www.djangoproject.com/rss/weblog/
+	
+Update all the feeds:
 
 .. code-block:: python
 
-    MIDDLEWARE_CLASSES = (
-        'django.contrib.sessions.middleware.SessionMiddleware',
-        'django.middleware.common.CommonMiddleware',
-        'django.middleware.csrf.CsrfViewMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
-        'django.contrib.messages.middleware.MessageMiddleware',
-        'django.middleware.clickjacking.XFrameOptionsMiddleware',
-        'pagination.middleware.PaginationMiddleware',
-    )
+	python manage.py planet_update_all_feeds
+	
+Auto update
+-----------
 
-Please do not forget ``pagination.middleware.PaginationMiddleware`` middleware!
+There are 2 options to auto update the feeds:
 
-5. Add planet configuration variables:
-
-.. code-block:: python
-
-    PLANET = {
-        "USER_AGENT": "My Planet/1.0",
-    }
-
-6. Properly configure your static files root directory:
-
-.. code-block:: python
-
-   STATIC_URL = '/static/'
-
-7. Also your projects templates root directory:
-
-.. code-block:: python
-
-    TEMPLATE_DIRS = (
-        '/path/to/planet/project/templates',
-        # other paths...
-    )
-
-7. And your template loaders must look like these:
-
-.. code-block:: python
-
-    TEMPLATE_LOADERS = (
-        'django.template.loaders.filesystem.Loader',
-        'django.template.loaders.app_directories.Loader',
-        # some other template loaders here...
-    )
-
-8. Finally in your project's templates directory create a ``site_base.html``
-   template if you don't already have one:
-
-.. code-block:: html
-
-    {% extends "base.html" %}
-
-
-9. Optionally, modify cookie names so you don't have login conflicts with other
-   projects:
-
-.. code-block:: python
-
-    LANGUAGE_COOKIE_NAME = "myplanetlng"
-    SESSION_COOKIE_NAME = "myplanetid"
-
-Congratulations! Your settings are complete. Now you'll need to change other
-files in order to get a running project.
-
-Enable planet urls
-------------------
-
-1. Add the planet urls include to your project's ``urls.py`` (remember to
-   also include admin urls so you can use the admin to manage your planet!):
-
-.. code-block:: python
-
-    from django.conf.urls import patterns, include, url
-
-    from django.contrib import admin
-    admin.autodiscover()
-
-    urlpatterns = patterns('',
-        url(r'^', include('planet.urls')),
-        url(r'^admin/', include(admin.site.urls)),
-        # ... other url bits...
-    )
-
-Syncdb and add some feeds!
---------------------------
-
-1. Then create the database structure::
-
-     ./manage.py syncdb
-
-2. Add some feeds::
-
-    python manage.py planet_add_feed http://www.economonitor.com/feed/rss/
-    python manage.py planet_add_feed http://www.ft.com/rss/home/us
-
-3. And surely you'll want to add a cron entry to periodically update them all::
+1. Use a cron job:
 
     30 * * * * python manage.py planet_update_all_feeds
 
 This attempts to pull in new posts every 30 minutes.
 
-4. Now you're done. Just run::
+2. Use an async time worker (Celery or Huey):
 
-   ./manage.py runserver
+* Celery:
 
-and browse your planet at http://localhost:8000/ in your favorite browser!
+Install Celery ``pip install celery redis``. You will need a ``celery.py`` file 
+as explained `here <http://docs.celeryproject.org/en/latest/django/first-steps-with-django.html>`_. A Redis 
+or RabbitMQ instance is also required, check the Celery docs.
+In settings.py:
+
+.. code-block:: python
+
+    from datetime import timedelta
+	CELERYBEAT_SCHEDULE = {
+	    'update-feeds': {
+	        'task': 'planet.tasks.update_feeds',
+	        'schedule': timedelta(minutes=30),
+	    },
+	}
+ 
+
+* Huey
+
+Install Celery ``pip install huey``. Add ``huey.contrib.djhuey`` in INSTALLED_APPS.
+In settings.py:
+
+.. code-block:: python
+
+    ASYNC_BACKEND = "huey"
+    
+    from huey import RedisHuey
+	HUEY = RedisHuey('your_project_name')
+	
+Then launch the worker. For Celery start a beat and a worker:
+
+.. code-block:: python
+
+    celery -A project_name beat  -l info --broker='redis://localhost:6379/0'
+    celery -A project_name worker  -l info --broker='redis://localhost:6379/0'
+	
+For Huey:
+
+.. code-block:: python
+
+    python manage.py run_huey
+
+

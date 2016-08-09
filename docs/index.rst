@@ -3,13 +3,13 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to django-planet!
-=========================
-
-.. image:: _static/screenshots/latest-posts.png
+Django Planet
+=============
 
 This is a generic application for Django that allows you to quickly build a
-planet aggregating RSS and ATOM feeds of your favorite blogs.
+planet aggregating RSS and ATOM feeds.
+
+.. image:: _static/screenshots/latest-posts.png
 
 Some parts of this help docs has been copied from `django-tastypie`_ and then
 readapted to django-planet. Kudos to `django-tastypie`_ for its docs!
@@ -20,35 +20,21 @@ Content:
 --------
 
 .. toctree::
-  :maxdepth: 1
+  :maxdepth: 2
 
+  install
   usage
   screenshots
   demo
-
-  who_uses
+  
   contributing
-
-
-Getting Help
-============
-
-There are two primary ways of getting help. We have a `mailing list`_ hosted at
-Google (https://groups.google.com/forum/#!forum/django-planet) or you may contact us
-via email to matagus at gmail dot com. You may also `open an issue`_ in our
-github repository (it requires you to have a github account).
-
-.. _`mailing list`: https://groups.google.com/forum/#!forum/django-planet
-.. _`open an issue`: https://github.com/matagus/django-planet/issues/
 
 
 Requirements
 ============
 
 django-planet requires the following modules but simply installing it
-using Pip_ will also install them. Just type::
-
-    pip install django-planet
+using Pip_ will also install them: ``pip install django-planet``
 
 Required
 --------
@@ -58,7 +44,6 @@ Required
 * django-tagging 0.3.6
 * django-pagination 1.0.0+
 * feedparser
-* pinax-theme-bootstrap 3.0
 * BeautifulSoup4
 
 Optionally, install celery if you want to add and update feeds using async &
@@ -67,16 +52,8 @@ parallel tasks:
 * Celery 3.1.18
 * django-celery 3.1.16
 
-Optional
---------
-
-* south
-
-.. _Pip: http://pip.openplans.org/
-
-
 Why django-planet?
-=============
+==================
 
 There are other feed aggregators out there for Django. You need to assess
 the options available and decide for yourself. That said, here are some
