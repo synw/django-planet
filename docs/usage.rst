@@ -75,7 +75,7 @@ In settings.py:
     ASYNC_BACKEND = "huey"
     
     from huey import RedisHuey
-	HUEY = RedisHuey('your_project_name')
+    HUEY = RedisHuey('your_project_name')
 	
 Then launch the worker. For Celery start a beat and a worker:
 
