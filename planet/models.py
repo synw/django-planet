@@ -168,6 +168,9 @@ class Feed(models.Model):
 
     category = models.ForeignKey(Category, blank=True, null=True,
                                  db_index=True)
+    is_primary = models.BooleanField(_("Is primary"), default=True,
+                                    db_index=True,
+        help_text=_("Display feed in the main view"))
 
     site_objects = FeedManager()
     objects = models.Manager()

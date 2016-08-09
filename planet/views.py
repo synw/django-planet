@@ -18,7 +18,8 @@ from tagging.models import Tag, TaggedItem
 
 
 def index(request):
-    posts = Post.site_objects.all().order_by("-date_modified")
+    feeds = Feed.objects.filter(is_primary=True)
+    posts = Post.site_objects.filter(feed__in=feeds).order_by("-date_modified")
 
     return render_to_response("planet/posts/list.html", {"posts": posts, "base_template":BASE_TEMPLATE},
         context_instance=RequestContext(request))
