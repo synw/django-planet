@@ -10,7 +10,7 @@ Note: this fork makes this app compatible with modern versions of Django and con
 Installation
 ============
 
-    * For installation instructions, see `the docs <http://django-planet.readthedocs.org/>`_.
+For installation instructions, see `the docs <http://django-planet-continued.readthedocs.io/en/latest/install.html/>`_.
     
 Note for Django 1.9 : you have to clone the `django-pagination-py3 repository <https://github.com/matagus/django-pagination-py3>`_ as
 the pip version is not yet compatible with Django 1.9.
