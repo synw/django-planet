@@ -1,10 +1,12 @@
 Install
 =======
 
+``pip install django-planet``
+
 Required settings
 -----------------
 
-Modifiy your projects ``settings.py`` file following the next steps:
+Modify your projects ``settings.py`` file following the next steps:
 
 In ``INSTALLED_APPS``:
 
