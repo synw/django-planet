@@ -34,6 +34,12 @@ Update all the feeds:
 
 	python manage.py planet_update_all_feeds
 	
+Empty all feeds:
+
+.. code-block:: python
+
+	python manage.py planet_flush_all_feeds
+	
 Auto update
 -----------
 

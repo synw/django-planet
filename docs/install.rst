@@ -55,12 +55,19 @@ In ``urls.py``:
 Optional settings
 -----------------
 
-To modify cookie names so you don’t have login conflicts with other projects:
+:
 
 .. code-block:: python
 
+	# To modify cookie names so you don’t have login conflicts with other projects
     LANGUAGE_COOKIE_NAME = "myplanetlng"
     SESSION_COOKIE_NAME = "myplanetid"
+    # user agent
+    PLANET_USER_AGENT = "Django Planet"
+    # limit the number of posts to be retrieved by feed (default is 30)
+    PLANET_MAX_POSTS = 20
+    # base template to be used (base.html is the default)
+    PLANET_BASE_TEMPLATE ="my_base.html"
 	
 Select the async backend:
 
