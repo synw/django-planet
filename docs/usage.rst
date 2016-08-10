@@ -51,7 +51,7 @@ There are 2 options to auto update the feeds:
 
 This attempts to pull in new posts every 30 minutes.
 
-2. Use an async time worker (Celery or Huey):
+2. Use an async time based worker (Celery or Huey):
 
 * Celery:
 
