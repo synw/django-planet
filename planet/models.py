@@ -188,16 +188,24 @@ class Feed(models.Model):
                                         modified=self.modified, etag=self.etag)
 
             self.site = Site.objects.get(pk=settings.SITE_ID)
-
-            self.title = document.feed.get("title", "--").encode('utf-8')
-            self.subtitle = document.feed.get("subtitle").encode('utf-8')
-            blog_url = document.feed.get("link").encode('utf-8')
-            self.rights = document.feed.get("rights").encode('utf-8') or document.feed.get("license").encode('utf-8')
-            self.info = document.feed.get("info").encode('utf-8')
-            self.guid = document.feed.get("id").encode('utf-8')
+            
+            self.title = document.feed.get("title", "--")
+            if self.title is not None:
+                self.title = self.title.encode('utf-8')
+            self.subtitle = document.feed.get("subtitle")
+            if self.subtitle is not None:
+                self.subtitle = self.subtitle.encode('utf-8')
+            blog_url = document.feed.get("link")
+            self.rights or document.feed.get("license")
+            self.info = document.feed.get("info")
+            if self.info is not None:
+                self.info = self.info.encode('utf-8')
+            self.guid = document.feed.get("id")
+            if self.guid is not None:
+                self.guid = self.guid.encode('utf-8')
             self.image_url = document.feed.get("image", {}).get("href")
-            self.icon_url = document.feed.get("icon").encode('utf-8')
-            self.language = document.feed.get("language").encode('utf-8')
+            self.icon_url = document.feed.get("icon")
+            self.language = document.feed.get("language")
             self.etag = document.get("etag", '')
 
             self.last_modified = document.get("updated_parsed", datetime.now())
