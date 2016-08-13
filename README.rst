@@ -27,6 +27,7 @@ Todo
 - Fix the tests with reversed urls
 - Improve the search (and remove the context processor)
 - Categories refactoring using mptt
+- Feeds management in a GUI
 
 License
 =======
