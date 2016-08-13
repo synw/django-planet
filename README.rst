@@ -24,6 +24,7 @@ There is a `simple demo django-planet <http://django-planet.com/>`_.
 Todo
 ====
 
+- Stronger permissions check and option to enable user added feeds
 - Fix the tests with reversed urls
 - Improve the search (and remove the context processor)
 - Categories refactoring using mptt

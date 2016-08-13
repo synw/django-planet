@@ -170,7 +170,7 @@ def tags_cloud(request, min_posts_count=1):
     tags_cloud = Tag.objects.cloud_for_model(Post)
 
     return render_to_response("planet/tags/cloud.html",
-        {"tags_cloud": tags_cloud}, context_instance=RequestContext(request))
+        {"tags_cloud": tags_cloud, "base_template":BASE_TEMPLATE}, context_instance=RequestContext(request))
 
 
 def foaf(request):
