@@ -49,7 +49,7 @@ In ``urls.py``:
 
     urlpatterns = patterns('',
     	# ...
-        url(r'^planet/^', include('planet.urls')),
+        url(r'^planet/', include('planet.urls')),
     )
 
 Optional settings

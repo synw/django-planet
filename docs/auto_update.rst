@@ -43,7 +43,8 @@ Then launch the worker: start a beat and a worker:
 Huey
 ----
 
-Huey is easier to configure than Celery. If you are not familiar you might want to use it for an easy start.
+Huey is easier to configure than Celery. If you are not familiar with Celery you might want to use 
+it for an easy start.
 
 Install Huey: ``pip install huey``. Add ``huey.contrib.djhuey`` in INSTALLED_APPS.
 In settings.py:
