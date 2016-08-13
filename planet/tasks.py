@@ -9,7 +9,7 @@ if ASYNC_BACKEND == "celery":
     except ImportError:
         from planet.utils import task_faker as task
 elif ASYNC_BACKEND == 'huey':   
-    from huey.contrib.djhuey import crontab, periodic_task
+    from huey.contrib.djhuey import crontab, periodic_task, task as huey_task
 
 from datetime import datetime
 from hashlib import md5
@@ -353,7 +353,7 @@ def _update_feeds():
     for feed_url in Feed.site_objects.all().values_list("url", flat=True):
         print("Scheduling feed URL={}...".format(feed_url))
         process_feed(feed_url, create=False)
-        print("Done!")
+        print("[OK] Done")
 
     feeds_updated.send(sender=None, instance=None)
 
@@ -362,8 +362,9 @@ if ASYNC_BACKEND == 'celery':
     @task(ignore_results=True)
     def update_feeds():
         """
-        Task for running on celery beat!
-    
+        # Task for running on celery beat: in settings.py:
+        
+        from datetime import timedelta
         CELERYBEAT_SCHEDULE = {
             'update_feeds': {
                 'task': 'planet.tasks.update_feeds',
@@ -381,5 +382,13 @@ elif ASYNC_BACKEND == 'huey':
         Task for running on Huey
         """
         return _update_feeds()
+    
+    @huey_task()
+    def huey_process_feed(feed_url, create, category_title = None):
+        if category_title is not None:
+            process_feed(feed_url, create=create, category_title=category_title)
+        else:
+            process_feed(feed_url, create=create)
+        return
 
 

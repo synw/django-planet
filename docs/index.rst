@@ -23,10 +23,11 @@ Content:
   :maxdepth: 2
 
   install
-  usage
+  auto_update
+  management_commands
+  
   screenshots
   demo
-  
   contributing
 
 
@@ -49,8 +50,7 @@ Required
 Optionally, install celery if you want to add and update feeds using async &
 parallel tasks:
 
-* Celery 3.1.18
-* django-celery 3.1.16
+* Celery or Huey
 
 Why django-planet?
 ==================
